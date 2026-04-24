@@ -49,6 +49,10 @@ class ToolResult:
         """Convenience constructor for a failed result."""
         return cls(success=False, error=error)
 
+    def __bool__(self) -> bool:
+        """Allow truth-testing a ToolResult directly, e.g. ``if result: ...``."""
+        return self.success
+
 
 class BaseTool(abc.ABC):
     """Abstract base class that every opensre tool must implement.
@@ -87,27 +91,4 @@ class BaseTool(abc.ABC):
         """Execute the tool with the given *params* and return a :class:`ToolResult`."""
 
     # ------------------------------------------------------------------
-    # Convenience helpers
-    # ------------------------------------------------------------------
-
-    def safe_run(self, raw: dict[str, Any]) -> ToolResult:
-        """End-to-end helper: validate availability, extract params, and run.
-
-        Catches unexpected exceptions and wraps them in a failed :class:`ToolResult`
-        so callers always receive a predictable return type.
-        """
-        if not self.is_available():
-            return ToolResult.fail(f"Tool '{self.my_tool_name}' is not available.")
-
-        try:
-            params = self.extract_params(raw)
-            return self.run(params)
-        except KeyError as exc:
-            logger.warning("[%s] Missing parameter: %s", self.my_tool_name, exc)
-            return ToolResult.fail(str(exc))
-        except Exception as exc:  # noqa: BLE001
-            logger.exception("[%s] Unexpected error during run.", self.my_tool_name)
-            return ToolResult.fail(f"Unexpected error: {exc}")
-
-    def __repr__(self) -> str:
-        return f"<{type(self).__name__} tool_name={self.my_tool_name!r}>"
+    # Convenience help
