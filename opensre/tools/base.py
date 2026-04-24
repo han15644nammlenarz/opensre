@@ -53,6 +53,13 @@ class ToolResult:
         """Allow truth-testing a ToolResult directly, e.g. ``if result: ...``."""
         return self.success
 
+    def __repr__(self) -> str:
+        """More informative repr showing success status and a snippet of output/error."""
+        if self.success:
+            preview = repr(self.output)[:80]
+            return f"ToolResult(success=True, output={preview})"
+        return f"ToolResult(success=False, error={self.error!r})"
+
 
 class BaseTool(abc.ABC):
     """Abstract base class that every opensre tool must implement.
@@ -88,7 +95,4 @@ class BaseTool(abc.ABC):
 
     @abc.abstractmethod
     def run(self, params: ToolParams) -> ToolResult:
-        """Execute the tool with the given *params* and return a :class:`ToolResult`."""
-
-    # ------------------------------------------------------------------
-    # Convenience help
+        """Execute the tool with the given
