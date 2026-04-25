@@ -56,7 +56,9 @@ class ToolResult:
     def __repr__(self) -> str:
         """More informative repr showing success status and a snippet of output/error."""
         if self.success:
-            preview = repr(self.output)[:80]
+            # Increased preview length from 80 to 120 chars — 80 was too short
+            # for most real tool outputs and made debugging harder.
+            preview = repr(self.output)[:120]
             return f"ToolResult(success=True, output={preview})"
         return f"ToolResult(success=False, error={self.error!r})"
 
@@ -87,12 +89,4 @@ class BaseTool(abc.ABC):
 
     @abc.abstractmethod
     def is_available(self) -> bool:
-        """Return True when the tool's external dependencies are reachable."""
-
-    @abc.abstractmethod
-    def extract_params(self, raw: dict[str, Any]) -> ToolParams:
-        """Validate and normalise *raw* input into a :class:`ToolParams` instance."""
-
-    @abc.abstractmethod
-    def run(self, params: ToolParams) -> ToolResult:
-        """Execute the tool with the given
+        """Return True when the tool's external depe
